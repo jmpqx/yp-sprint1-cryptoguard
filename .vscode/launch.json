@@ -11,9 +11,13 @@
             "program": "${workspaceFolder}/build/CryptoGuard",
             "args": [
                 "-i",
-                "input.txt",
+                "output.txt",
                 "--command",
-                "checksum"
+                "decrypt",
+                "--password",
+                "admin123",
+                "-o",
+                "result.txt"
             ],
             "cwd": "${workspaceFolder}/build",
             "preLaunchTask": "GCC: Build Debug",
