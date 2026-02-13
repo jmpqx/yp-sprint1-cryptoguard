@@ -2,12 +2,11 @@
 #include "crypto_guard_ctx.h"
 #include <algorithm>
 #include <array>
+#include <fstream>
 #include <iostream>
 #include <print>
 #include <stdexcept>
 #include <string>
-#include <iostream>
-#include <fstream>
 
 int main(int argc, char *argv[]) {
     try {
@@ -18,8 +17,7 @@ int main(int argc, char *argv[]) {
 
         using COMMAND_TYPE = CryptoGuard::ProgramOptions::COMMAND_TYPE;
         switch (options.GetCommand()) {
-        case COMMAND_TYPE::ENCRYPT:
-        {
+        case COMMAND_TYPE::ENCRYPT: {
             auto inFile = std::ifstream{options.GetInputFile()};
             auto inStream = std::iostream{inFile.rdbuf()};
 
@@ -30,8 +28,7 @@ int main(int argc, char *argv[]) {
             std::print("File encoded successfully\n");
             break;
         }
-        case COMMAND_TYPE::DECRYPT:
-        {
+        case COMMAND_TYPE::DECRYPT: {
             auto inFile = std::ifstream{options.GetInputFile(), std::ios::binary};
             auto inStream = std::iostream{inFile.rdbuf()};
 
@@ -42,14 +39,20 @@ int main(int argc, char *argv[]) {
             std::print("File decoded successfully\n");
             break;
         }
-        case COMMAND_TYPE::CHECKSUM:
-            std::print("Checksum: {}\n", "CHECKSUM_NOT_IMPLEMENTED");
-            break;
+        case COMMAND_TYPE::CHECKSUM: {
+            auto inFile = std::ifstream{options.GetInputFile()};
+            auto inStream = std::iostream{inFile.rdbuf()};
 
+            std::print("Checksum: {}\n", cryptoCtx.CalculateChecksum(inStream));
+            break;
+        }
         default:
             throw std::runtime_error{"Unsupported command"};
         }
 
+    } catch (const CryptoGuard::OpenSSL_error &e) {
+        std::print(std::cerr, "OpenSSL error: {}\n", e.what());
+        return 1;
     } catch (const std::exception &e) {
         std::print(std::cerr, "Error: {}\n", e.what());
         return 1;

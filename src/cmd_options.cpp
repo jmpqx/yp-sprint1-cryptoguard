@@ -1,7 +1,7 @@
 #include "cmd_options.h"
 #include <exception>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 namespace CryptoGuard {
 
