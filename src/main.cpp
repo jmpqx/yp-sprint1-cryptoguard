@@ -19,10 +19,10 @@ int main(int argc, char *argv[]) {
         switch (options.GetCommand()) {
         case COMMAND_TYPE::ENCRYPT: {
             auto inFile = std::ifstream{options.GetInputFile()};
-            auto inStream = std::iostream{inFile.rdbuf()};
+            auto inStream = std::istream{inFile.rdbuf()};
 
             auto outFile = std::ofstream{options.GetOutputFile(), std::ios::binary};
-            auto outStream = std::iostream{outFile.rdbuf()};
+            auto outStream = std::ostream{outFile.rdbuf()};
 
             cryptoCtx.EncryptFile(inStream, outStream, options.GetPassword());
             std::print("File encoded successfully\n");
@@ -30,10 +30,10 @@ int main(int argc, char *argv[]) {
         }
         case COMMAND_TYPE::DECRYPT: {
             auto inFile = std::ifstream{options.GetInputFile(), std::ios::binary};
-            auto inStream = std::iostream{inFile.rdbuf()};
+            auto inStream = std::istream{inFile.rdbuf()};
 
             auto outFile = std::ofstream{options.GetOutputFile()};
-            auto outStream = std::iostream{outFile.rdbuf()};
+            auto outStream = std::ostream{outFile.rdbuf()};
 
             cryptoCtx.DecryptFile(inStream, outStream, options.GetPassword());
             std::print("File decoded successfully\n");
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
         }
         case COMMAND_TYPE::CHECKSUM: {
             auto inFile = std::ifstream{options.GetInputFile()};
-            auto inStream = std::iostream{inFile.rdbuf()};
+            auto inStream = std::istream{inFile.rdbuf()};
 
             std::print("Checksum: {}\n", cryptoCtx.CalculateChecksum(inStream));
             break;

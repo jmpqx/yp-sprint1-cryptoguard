@@ -47,9 +47,9 @@ public:
     Impl &operator=(Impl &&) noexcept = default;
 
     // API
-    void EncryptFile(std::iostream &inStream, std::iostream &outStream, std::string_view password);
-    void DecryptFile(std::iostream &inStream, std::iostream &outStream, std::string_view password);
-    std::string CalculateChecksum(std::iostream &inStream);
+    void EncryptFile(std::istream &inStream, std::ostream &outStream, std::string_view password);
+    void DecryptFile(std::istream &inStream, std::ostream &outStream, std::string_view password);
+    std::string CalculateChecksum(std::istream &inStream);
 
 private:
     AesCipherParams CreateCipherParamsFromPassword_(std::string_view password);
@@ -59,7 +59,7 @@ CryptoGuardCtx::Impl::Impl() { OpenSSL_add_all_algorithms(); }
 
 CryptoGuardCtx::Impl::~Impl() { EVP_cleanup(); }
 
-void CryptoGuardCtx::Impl::EncryptFile(std::iostream &inStream, std::iostream &outStream, std::string_view password) {
+void CryptoGuardCtx::Impl::EncryptFile(std::istream &inStream, std::ostream &outStream, std::string_view password) {
     if (!inStream) {
         throw std::runtime_error{"Invalid input stream"};
     }
@@ -80,7 +80,7 @@ void CryptoGuardCtx::Impl::EncryptFile(std::iostream &inStream, std::iostream &o
         throw OpenSSL_error{ERR_get_error()};
     }
 
-    const size_t BUFFER_SIZE = 1024;
+    const size_t BUFFER_SIZE = 65536;
     std::vector<unsigned char> outBuf(BUFFER_SIZE + EVP_MAX_BLOCK_LENGTH);
     std::vector<unsigned char> inBuf(BUFFER_SIZE);
     int outLen = 0;
@@ -104,7 +104,7 @@ void CryptoGuardCtx::Impl::EncryptFile(std::iostream &inStream, std::iostream &o
     }
 }
 
-void CryptoGuardCtx::Impl::DecryptFile(std::iostream &inStream, std::iostream &outStream, std::string_view password) {
+void CryptoGuardCtx::Impl::DecryptFile(std::istream &inStream, std::ostream &outStream, std::string_view password) {
     if (!inStream) {
         throw std::runtime_error{"Invalid input stream"};
     }
@@ -125,7 +125,7 @@ void CryptoGuardCtx::Impl::DecryptFile(std::iostream &inStream, std::iostream &o
         throw OpenSSL_error{ERR_get_error()};
     }
 
-    const size_t BUFFER_SIZE = 1024;
+    const size_t BUFFER_SIZE = 65536;
     std::vector<unsigned char> outBuf(BUFFER_SIZE + EVP_MAX_BLOCK_LENGTH);
     std::vector<unsigned char> inBuf(BUFFER_SIZE);
     int outLen = 0;
@@ -149,7 +149,7 @@ void CryptoGuardCtx::Impl::DecryptFile(std::iostream &inStream, std::iostream &o
     }
 }
 
-std::string CryptoGuardCtx::Impl::CalculateChecksum(std::iostream &inStream) {
+std::string CryptoGuardCtx::Impl::CalculateChecksum(std::istream &inStream) {
     if (!inStream) {
         throw std::runtime_error{"Invalid input stream"};
     }
@@ -208,13 +208,13 @@ CryptoGuardCtx::~CryptoGuardCtx() = default;
 CryptoGuardCtx::CryptoGuardCtx(CryptoGuardCtx &&) noexcept = default;
 CryptoGuardCtx &CryptoGuardCtx::operator=(CryptoGuardCtx &&) noexcept = default;
 
-void CryptoGuardCtx::EncryptFile(std::iostream &inStream, std::iostream &outStream, std::string_view password) {
+void CryptoGuardCtx::EncryptFile(std::istream &inStream, std::ostream &outStream, std::string_view password) {
     pImpl_->EncryptFile(inStream, outStream, password);
 }
 
-void CryptoGuardCtx::DecryptFile(std::iostream &inStream, std::iostream &outStream, std::string_view password) {
+void CryptoGuardCtx::DecryptFile(std::istream &inStream, std::ostream &outStream, std::string_view password) {
     pImpl_->DecryptFile(inStream, outStream, password);
 }
 
-std::string CryptoGuardCtx::CalculateChecksum(std::iostream &inStream) { return pImpl_->CalculateChecksum(inStream); }
+std::string CryptoGuardCtx::CalculateChecksum(std::istream &inStream) { return pImpl_->CalculateChecksum(inStream); }
 }  // namespace CryptoGuard

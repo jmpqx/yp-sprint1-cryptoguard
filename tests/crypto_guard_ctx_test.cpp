@@ -10,10 +10,10 @@ protected:
 
     std::string Encrypt(const std::string &input, std::string_view pwd) {
         std::istringstream inSS(input);
-        std::iostream inStream(inSS.rdbuf());
+        std::istream inStream(inSS.rdbuf());
 
         std::ostringstream outSS;
-        std::iostream outStream(outSS.rdbuf());
+        std::ostream outStream(outSS.rdbuf());
 
         cryptoCtx.EncryptFile(inStream, outStream, pwd);
         return outSS.str();
@@ -21,10 +21,10 @@ protected:
 
     std::string Decrypt(const std::string &input, std::string_view pwd) {
         std::istringstream inSS(input);
-        std::iostream inStream(inSS.rdbuf());
+        std::istream inStream(inSS.rdbuf());
 
         std::ostringstream outSS;
-        std::iostream outStream(outSS.rdbuf());
+        std::ostream outStream(outSS.rdbuf());
 
         cryptoCtx.DecryptFile(inStream, outStream, pwd);
         return outSS.str();
@@ -32,7 +32,7 @@ protected:
 
     std::string CalculateChecksum(const std::string &input) {
         std::istringstream inSS(input);
-        std::iostream inStream(inSS.rdbuf());
+        std::istream inStream(inSS.rdbuf());
 
         return cryptoCtx.CalculateChecksum(inStream);
     }
@@ -90,21 +90,21 @@ TEST_F(CryptoGuardFixture, DataExactlyBufferSize) {
 }
 
 TEST_F(CryptoGuardFixture, DataBufferSizePlusOne) {
-    std::string data(1025, '*');
+    std::string data(65537, '*');
     std::string decrypted = Decrypt(Encrypt(data, password), password);
 
     EXPECT_EQ(decrypted, data);
 }
 
 TEST_F(CryptoGuardFixture, DataMultipleBufferSizes) {
-    std::string data(1024 * 5, '*');
+    std::string data(65537 * 5, '*');
     std::string decrypted = Decrypt(Encrypt(data, password), password);
 
     EXPECT_EQ(decrypted, data);
 }
 
 TEST_F(CryptoGuardFixture, LargeData) {
-    std::string data(1024 * 1024, '*');
+    std::string data(65537 * 128, '*');
     std::string decrypted = Decrypt(Encrypt(data, password), password);
 
     EXPECT_EQ(decrypted, data);
@@ -149,11 +149,11 @@ TEST(CryptoGuard, InvalidInputStreamEncrypt) {
     CryptoGuard::CryptoGuardCtx cryptoCtx;
 
     std::istringstream inStringStream("Hello, Crypto!");
-    std::iostream inStream(inStringStream.rdbuf());
+    std::istream inStream(inStringStream.rdbuf());
     inStream.setstate(std::ios::failbit);
 
     std::ostringstream outStringStream;
-    std::iostream outStream(outStringStream.rdbuf());
+    std::ostream outStream(outStringStream.rdbuf());
 
     std::string_view password = "test_password";
 
@@ -164,11 +164,11 @@ TEST(CryptoGuard, InvalidInputStreamDecrypt) {
     CryptoGuard::CryptoGuardCtx cryptoCtx;
 
     std::istringstream inStringStream("Hello, Crypto!");
-    std::iostream inStream(inStringStream.rdbuf());
+    std::istream inStream(inStringStream.rdbuf());
     inStream.setstate(std::ios::failbit);
 
     std::ostringstream outStringStream;
-    std::iostream outStream(outStringStream.rdbuf());
+    std::ostream outStream(outStringStream.rdbuf());
 
     std::string_view password = "test_password";
 
@@ -179,10 +179,10 @@ TEST(CryptoGuard, InvalidOutputStreamEncrypt) {
     CryptoGuard::CryptoGuardCtx cryptoCtx;
 
     std::istringstream inStringStream("Hello, Crypto!");
-    std::iostream inStream(inStringStream.rdbuf());
+    std::istream inStream(inStringStream.rdbuf());
 
     std::ostringstream outStringStream;
-    std::iostream outStream(outStringStream.rdbuf());
+    std::ostream outStream(outStringStream.rdbuf());
     outStream.setstate(std::ios::failbit);
 
     std::string_view password = "test_password";
@@ -194,10 +194,10 @@ TEST(CryptoGuard, InvalidOutputStreamDecrypt) {
     CryptoGuard::CryptoGuardCtx cryptoCtx;
 
     std::istringstream inStringStream("Hello, Crypto!");
-    std::iostream inStream(inStringStream.rdbuf());
+    std::istream inStream(inStringStream.rdbuf());
 
     std::ostringstream outStringStream;
-    std::iostream outStream(outStringStream.rdbuf());
+    std::ostream outStream(outStringStream.rdbuf());
     outStream.setstate(std::ios::failbit);
 
     std::string_view password = "test_password";
@@ -209,7 +209,7 @@ TEST(CryptoGuard, ChecksumSimple1) {
     CryptoGuard::CryptoGuardCtx cryptoCtx;
 
     std::istringstream inStringStream("Hello, Crypto!");
-    std::iostream inStream(inStringStream.rdbuf());
+    std::istream inStream(inStringStream.rdbuf());
 
     std::string checksum;
 
@@ -221,7 +221,7 @@ TEST(CryptoGuard, ChecksumSimple2) {
     CryptoGuard::CryptoGuardCtx cryptoCtx;
 
     std::istringstream inStringStream("This is my first crypto experience!");
-    std::iostream inStream(inStringStream.rdbuf());
+    std::istream inStream(inStringStream.rdbuf());
 
     std::string checksum;
 
@@ -233,7 +233,7 @@ TEST(CryptoGuard, ChecksumInvalidInputStream) {
     CryptoGuard::CryptoGuardCtx cryptoCtx;
 
     std::istringstream inStringStream("");
-    std::iostream inStream(inStringStream.rdbuf());
+    std::istream inStream(inStringStream.rdbuf());
     inStream.setstate(std::ios::failbit);
 
     EXPECT_THROW(cryptoCtx.CalculateChecksum(inStream), std::runtime_error);
@@ -244,10 +244,10 @@ TEST(CryptoGuard, MoveConstructor) {
     CryptoGuard::CryptoGuardCtx ctx2{std::move(ctx1)};
 
     std::istringstream inSS("This is my first crypto experience!");
-    std::iostream inStream(inSS.rdbuf());
+    std::istream inStream(inSS.rdbuf());
 
     std::ostringstream outSS;
-    std::iostream outStream(outSS.rdbuf());
+    std::ostream outStream(outSS.rdbuf());
 
     EXPECT_NO_THROW(ctx2.EncryptFile(inStream, outStream, "password"));
 }
@@ -257,10 +257,10 @@ TEST(CryptoGuard, MoveOperator) {
     CryptoGuard::CryptoGuardCtx ctx2 = std::move(ctx1);
 
     std::istringstream inSS("This is my first crypto experience!");
-    std::iostream inStream(inSS.rdbuf());
+    std::istream inStream(inSS.rdbuf());
 
     std::ostringstream outSS;
-    std::iostream outStream(outSS.rdbuf());
+    std::ostream outStream(outSS.rdbuf());
 
     EXPECT_NO_THROW(ctx2.EncryptFile(inStream, outStream, "password"));
 }
