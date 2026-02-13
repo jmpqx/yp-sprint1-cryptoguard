@@ -19,24 +19,28 @@ public:
 
     void Parse(int argc, char *argv[]);
 
-    COMMAND_TYPE GetCommand() const { return command_; }
-    std::string GetInputFile() const { return inputFile_; }
-    std::string GetOutputFile() const { return outputFile_; }
-    std::string GetPassword() const { return password_; }
+    COMMAND_TYPE GetCommand() const { return data_.command_; }
+    std::string GetInputFile() const { return data_.inputFile_; }
+    std::string GetOutputFile() const { return data_.outputFile_; }
+    std::string GetPassword() const { return data_.password_; }
 
 private:
-    COMMAND_TYPE command_;
-    const std::unordered_map<std::string_view, COMMAND_TYPE> commandMapping_ = {
+    void ValidateCommands_(const boost::program_options::variables_map &vm);
+    COMMAND_TYPE FromStrToCommandType_(const std::string &commandStr) const;
+
+    const static inline std::unordered_map<std::string_view, COMMAND_TYPE> commandMapping_ = {
         {"encrypt", ProgramOptions::COMMAND_TYPE::ENCRYPT},
         {"decrypt", ProgramOptions::COMMAND_TYPE::DECRYPT},
         {"checksum", ProgramOptions::COMMAND_TYPE::CHECKSUM},
     };
 
-    std::string inputFile_;
-    std::string outputFile_;
-    std::string password_;
-
-    boost::program_options::options_description desc_;
+    struct Data_ {
+        COMMAND_TYPE command_;
+        std::string inputFile_;
+        std::string outputFile_;
+        std::string password_;
+        boost::program_options::options_description desc_;
+    } data_;
 };
 
 }  // namespace CryptoGuard
